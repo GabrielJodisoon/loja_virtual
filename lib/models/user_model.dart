@@ -51,6 +51,11 @@ class UserModel extends Model {
     notifyListeners();
   }
 
+  bool isLoggedIn(){
+    return firebaseUser != null;
+
+  }
+
   void recoverPass() {
 
   }
