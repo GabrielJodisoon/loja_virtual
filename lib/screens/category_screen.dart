@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:loja_virtual/datas/product_data.dart';
 import 'package:loja_virtual/tiles/product_tile.dart';
+import 'package:loja_virtual/widgets/cart_button.dart';
 
 class CategoryScreen extends StatelessWidget {
   const CategoryScreen({Key? key, required this.snapshot}) : super(key: key);
@@ -13,6 +14,7 @@ class CategoryScreen extends StatelessWidget {
     return DefaultTabController(
         length: 2,
         child: Scaffold(
+            floatingActionButton: CartButton(),
             appBar: AppBar(
               title: Text(snapshot['title']),
               centerTitle: true,
@@ -50,18 +52,23 @@ class CategoryScreen extends StatelessWidget {
                                     childAspectRatio: 0.65),
                             itemCount: snapshot.data!.docs.length,
                             itemBuilder: (context, index) {
+                              ProductData data = ProductData.fromDocument(snapshot.data!.docs[index]);
+                              data.category = this.snapshot.id;
+
                               return ProductTile(
                                 type: 'grid',
-                                data: ProductData.fromDocument(snapshot.data!.docs[index]),
+                                data: data,
                                   );
                             }),
                         ListView.builder(
                             padding: EdgeInsets.all(4),
                             itemCount: snapshot.data!.docs.length,
                             itemBuilder: (context, index){
+                              ProductData data = ProductData.fromDocument(snapshot.data!.docs[index]);
+                              data.category = this.snapshot.id;
                               return ProductTile(
                                 type: 'list',
-                                data: ProductData.fromDocument(snapshot.data!.docs[index]),
+                                data: data,
                               );
                             })
                       ]);

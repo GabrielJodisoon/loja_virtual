@@ -1,14 +1,20 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:loja_virtual/datas/cart_product.dart';
 import 'package:loja_virtual/datas/product_data.dart';
+import 'package:loja_virtual/screens/cart_screen.dart';
+import 'package:loja_virtual/screens/login_screen.dart';
+
+import '../models/cart_model.dart';
+import '../models/user_model.dart';
 
 class ProductScreen extends StatefulWidget {
-  const ProductScreen({Key? key, this.data}) : super(key: key);
+  const ProductScreen({Key? key, this.product}) : super(key: key);
 
-  final ProductData? data;
+  final ProductData? product;
 
   @override
-  State<ProductScreen> createState() => _ProductScreenState(data);
+  State<ProductScreen> createState() => _ProductScreenState(product);
 }
 
 class _ProductScreenState extends State<ProductScreen> {
@@ -23,7 +29,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.data!.title!),
+        title: Text(widget.product!.title!),
         centerTitle: true,
       ),
       body: ListView(
@@ -31,7 +37,7 @@ class _ProductScreenState extends State<ProductScreen> {
           AspectRatio(
             aspectRatio: 0.9,
             child: CarouselSlider(
-              items: widget.data!.images!.map((img) {
+              items: widget.product!.images!.map((img) {
                 return Image.network(
                   img,
                   fit: BoxFit.cover,
@@ -55,7 +61,7 @@ class _ProductScreenState extends State<ProductScreen> {
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(
-                  widget.data!.title!,
+                  widget.product!.title!,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
@@ -63,7 +69,7 @@ class _ProductScreenState extends State<ProductScreen> {
                   maxLines: 3,
                 ),
                 Text(
-                  "R\$ ${widget.data!.price!.toStringAsFixed(2)}",
+                  "R\$ ${widget.product!.price!.toStringAsFixed(2)}",
                   style: TextStyle(
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
@@ -90,7 +96,7 @@ class _ProductScreenState extends State<ProductScreen> {
                       mainAxisSpacing: 8,
                       childAspectRatio: 0.5,
                     ),
-                    children: widget.data!.sizes!.map((n) {
+                    children: widget.product!.sizes!.map((n) {
                       return GestureDetector(
                         onTap: () {
                           setState(() {
@@ -120,14 +126,39 @@ class _ProductScreenState extends State<ProductScreen> {
                 SizedBox(
                   height: 44,
                   child: ElevatedButton(
-                    onPressed: size != null ? () {} : null,
+                    onPressed: size != null
+                        ? () {
+                            if (UserModel.of(context).isLoggedIn()) {
+                              CartProduct cartProduct =
+                                  CartProduct(); //construtor vazio
+                              cartProduct.size = size;
+                              cartProduct.quantity = 1;
+                              cartProduct.pid = widget.product!.id;
+                              cartProduct.category = widget.product!.category;
+                              cartProduct.productData = widget.product!;
+
+                              CartModel.of(context).addCartItem(cartProduct);
+                              //adiocionar ao carrinho
+
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => CartScreen()));
+                            } else {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (context) => LoginScreen()));
+                            }
+                          }
+                        : null,
                     child: Text(
-                      "adicionar ao carrinho",
+                      UserModel.of(context).isLoggedIn()
+                          ? "Adicionar ao carrinho"
+                          : "Entre para comprar",
                       style: TextStyle(fontSize: 16),
                     ),
                   ),
                 ),
-                SizedBox(height: 16,),
+                SizedBox(
+                  height: 16,
+                ),
                 // Text('Descricao', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, ),),
                 // Text(widget.data!.description!, style: TextStyle(fontSize: 14),)
               ],
