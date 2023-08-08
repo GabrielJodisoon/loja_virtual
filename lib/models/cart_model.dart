@@ -42,6 +42,7 @@ class CartModel extends Model {
         .collection('cart')
         .doc(cartProduct.cid)
         .delete();
+    products.remove(cartProduct);
     notifyListeners();
   }
 
